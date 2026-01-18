@@ -1,3 +1,4 @@
+```md
 # Admin API
 
 Complete reference for the Admin API endpoints.
@@ -497,8 +498,8 @@ GET /organisations/{organisationId}/alert-rules?isActive=true&projectId={project
       "id": "alert-rule-uuid",
       "name": "High API Usage Alert",
       "alertType": "usage_threshold",
-      "isActive": true,
-      ...
+      "isActive": true
+      // additional fields omitted for brevity
     }
   ],
   "total": 1
@@ -700,27 +701,37 @@ POST /invoice-templates/{templateId}/preview
 ### Template Variables
 
 Available template variables:
-- `{{invoice_number}}` - Invoice number
-- `{{organisation_name}}` - Organisation name
-- `{{billing_email}}` - Billing email (optional)
-- `{{invoice_date}}` - Invoice issue date
-- `{{due_date}}` - Invoice due date
-- `{{billing_period_start}}` - Billing period start
-- `{{billing_period_end}}` - Billing period end
-- `{{status}}` - Invoice status
-- `{{currency}}` - Currency code
-- `{{subtotal}}` - Subtotal amount
-- `{{tax}}` - Tax amount
-- `{{tax_rate}}` - Tax rate percentage
-- `{{total}}` - Total amount
-- `{{line_items}}` - Array of line items (use {{#each line_items}})
+
+```handlebars
+{{invoice_number}}       - Invoice number
+{{organisation_name}}    - Organisation name
+{{billing_email}}        - Billing email (optional)
+{{invoice_date}}         - Invoice issue date
+{{due_date}}             - Invoice due date
+{{billing_period_start}} - Billing period start
+{{billing_period_end}}   - Billing period end
+{{status}}               - Invoice status
+{{currency}}             - Currency code
+{{subtotal}}             - Subtotal amount
+{{tax}}                  - Tax amount
+{{tax_rate}}             - Tax rate percentage
+{{total}}                - Total amount
+{{line_items}}           - Array of line items
+```
 
 ### Template Syntax
 
-- **Variables**: `{{variable_name}}`
-- **Conditionals**: `{{#if variable}}...{{/if}}`
-- **Loops**: `{{#each array}}...{{/each}}`
-- **CSS**: Use `{{css_content}}` placeholder in HTML
+```handlebars
+{{variable_name}}
+
+{{#if variable}}
+  ...
+{{/if}}
+
+{{#each array}}
+  ...
+{{/each}}
+```
 
 ### Exchange Rates
 
