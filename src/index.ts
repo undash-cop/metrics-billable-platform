@@ -15,6 +15,12 @@ import exchangeRateSyncCron from './workers/cron-exchange-rate-sync.js';
 import paymentRemindersCron from './workers/cron-payment-reminders.js';
 
 /**
+ * Undash-cop Metrics Billing Platform
+ * Copyright © 2026 Undash-cop Private Limited. All rights reserved.
+ *
+ * Proprietary software - See LICENSE file for details
+ *
+/**
  * Main Cloudflare Worker entry point
  */
 

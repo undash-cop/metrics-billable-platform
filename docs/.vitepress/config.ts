@@ -1,11 +1,17 @@
 import { defineConfig } from 'vitepress'
 
 export default defineConfig({
-  title: 'Metrics Billing Platform',
+  title: 'Undash-cop Metrics Billing Platform',
   description: 'Production-ready, multi-tenant, usage-based billing platform',
   base: '/',
   
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/assets/logo-favicon.svg' }],
+    ['link', { rel: 'apple-touch-icon', href: '/assets/logo-icon.svg' }],
+  ],
+  
   themeConfig: {
+    logo: '/assets/logo-icon.svg',
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Getting Started', link: '/getting-started/' },
@@ -90,10 +96,11 @@ export default defineConfig({
       // Add your social links here
     ],
 
-    footer: {
-      message: 'Metrics Billing Platform Documentation',
-      copyright: 'Copyright © 2024'
-    },
+    // Footer is handled by custom Footer.vue component
+    // footer: {
+    //   message: 'Undash-cop Metrics Billing Platform Documentation',
+    //   copyright: 'Copyright © 2026 Undash-cop Private Limited. All rights reserved.'
+    // },
 
     search: {
       provider: 'local'

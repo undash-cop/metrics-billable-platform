@@ -1,6 +1,8 @@
 # Architecture Overview
 
-High-level architecture of the Metrics Billing Platform.
+High-level architecture of the Undash-cop Metrics Billing Platform.
+
+**Copyright © 2026 Undash-cop Private Limited. All rights reserved.**
 
 ## System Architecture
 

@@ -1,6 +1,8 @@
 # Getting Started
 
-Welcome to the Metrics Billing Platform! This guide will help you get started quickly.
+Welcome to the Undash-cop Metrics Billing Platform! This guide will help you get started quickly.
+
+**Copyright © 2026 Undash-cop Private Limited. All rights reserved.**
 
 ## Quick Start
 

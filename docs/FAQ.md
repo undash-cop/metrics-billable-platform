@@ -4,7 +4,7 @@
 
 ### What is this platform?
 
-A production-ready, multi-tenant, usage-based billing platform built for the undash-cop brand. It handles event ingestion, usage aggregation, invoice generation, and payment processing.
+The Undash-cop Metrics Billing Platform is a production-ready, multi-tenant, usage-based billing platform. It handles event ingestion, usage aggregation, invoice generation, and payment processing.
 
 ### What technologies does it use?
 

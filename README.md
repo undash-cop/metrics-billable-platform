@@ -1,6 +1,12 @@
-# Metrics-Based Billing Platform
+# Undash-cop Metrics Billing Platform
 
-A production-ready, multi-tenant, usage-based billing platform built for the undash-cop brand. Designed for India-first payments using Razorpay, with Cloudflare Workers for ingestion and APIs, Cloudflare D1 for hot event storage, Cloudflare Queues for reliability, and Amazon RDS (Postgres) as the financial source of truth.
+**Copyright © 2026 Undash-cop Private Limited. All rights reserved.**
+
+<div align="center">
+  <img src="docs/assets/logo.svg" alt="Undash-cop Metrics Billing Platform Logo" width="300" />
+</div>
+
+A production-ready, multi-tenant, usage-based billing platform built by Undash-cop. Designed for India-first payments using Razorpay, with Cloudflare Workers for ingestion and APIs, Cloudflare D1 for hot event storage, Cloudflare Queues for reliability, and Amazon RDS (Postgres) as the financial source of truth.
 
 ---
 

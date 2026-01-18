@@ -1,7 +1,10 @@
 {
-  "name": "metrics-billable-platform",
+  "name": "@undash-cop/metrics-billing-platform",
   "version": "1.0.0",
-  "description": "Metrics-based billing platform for undash-cop",
+  "description": "Undash-cop Metrics Billing Platform - Production-ready, multi-tenant, usage-based billing system",
+  "author": "Undash-cop",
+  "license": "PROPRIETARY",
+  "copyright": "Copyright © 2026 Undash-cop Private Limited. All rights reserved.",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",

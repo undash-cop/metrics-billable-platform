@@ -1,6 +1,8 @@
 # Operations Guide
 
-Daily operations, monitoring, and troubleshooting for the Metrics Billing Platform.
+Daily operations, monitoring, and troubleshooting for the Undash-cop Metrics Billing Platform.
+
+**Copyright © 2026 Undash-cop Private Limited. All rights reserved.**
 
 ## Daily Operations
 

@@ -1,6 +1,8 @@
 # API Reference
 
-Complete API documentation for the Metrics Billing Platform.
+Complete API documentation for the Undash-cop Metrics Billing Platform.
+
+**Copyright © 2026 Undash-cop Private Limited. All rights reserved.**
 
 ## Overview
 

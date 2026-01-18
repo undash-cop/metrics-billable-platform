@@ -2,7 +2,9 @@
 
 ## 🎉 Production Ready
 
-The metrics-based billing platform is **100% complete** and ready for production deployment.
+The Undash-cop Metrics Billing Platform is **100% complete** and ready for production deployment.
+
+**Copyright © 2026 Undash-cop Private Limited. All rights reserved.**
 
 ---
 

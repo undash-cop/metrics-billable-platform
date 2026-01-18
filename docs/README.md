@@ -1,6 +1,8 @@
-# Documentation
+# Undash-cop Metrics Billing Platform - Documentation
 
-This directory contains the complete documentation for the Metrics Billing Platform.
+**Copyright © 2026 Undash-cop Private Limited. All rights reserved.**
+
+This directory contains the complete documentation for the Undash-cop Metrics Billing Platform.
 
 ## Structure
 
@@ -34,6 +36,8 @@ npm run docs:dev
 - `architecture/` - System architecture and design
 - `operations/` - Operations guides and troubleshooting
 - `status/` - Project status and implementation details
+- `legal/` - Terms of Service, Privacy Policy, License, Disclaimer
+- `assets/` - Logo files and brand assets
 - `*.md` - Reference documentation files
 
 ## See Also

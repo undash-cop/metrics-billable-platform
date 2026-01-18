@@ -1,7 +1,9 @@
 {
-  "name": "metrics-billing-docs",
+  "name": "@undash-cop/metrics-billing-docs",
   "version": "1.0.0",
-  "description": "Documentation site for metrics-based billing platform",
+  "description": "Documentation site for Undash-cop Metrics Billing Platform",
+  "author": "Undash-cop",
+  "copyright": "Copyright © 2026 Undash-cop Private Limited. All rights reserved.",
   "type": "module",
   "scripts": {
     "dev": "vitepress dev",

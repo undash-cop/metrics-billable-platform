@@ -2,9 +2,12 @@
 layout: home
 
 hero:
-  name: "Metrics Billing Platform"
+  name: "Undash-cop Metrics Billing Platform"
   text: "Production-Ready Billing System"
   tagline: Multi-tenant, usage-based billing with enterprise-grade security and reliability
+  image:
+    src: /assets/logo-icon.svg
+    alt: Undash-cop Logo
   actions:
     - theme: brand
       text: Get Started
@@ -15,6 +18,9 @@ hero:
     - theme: alt
       text: Check Status
       link: /status/
+    - theme: alt
+      text: Legal
+      link: /legal/
 
 features:
   - title: 🚀 Production Ready

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 60" width="200" height="60">
+  <!-- Background for dark mode -->
+  <rect width="200" height="60" rx="8" fill="#0f172a"/>
+  
+  <!-- Chart/Graph Icon -->
+  <g transform="translate(10, 15)">
+    <!-- Chart bars -->
+    <rect x="0" y="20" width="6" height="10" fill="#3b82f6" rx="1"/>
+    <rect x="8" y="15" width="6" height="15" fill="#3b82f6" rx="1"/>
+    <rect x="16" y="10" width="6" height="20" fill="#3b82f6" rx="1"/>
+    <rect x="24" y="5" width="6" height="25" fill="#60a5fa" rx="1"/>
+    
+    <!-- Trend line -->
+    <path d="M 0 25 L 8 20 L 16 15 L 24 10 L 30 8" stroke="#60a5fa" stroke-width="2" fill="none" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Invoice/Receipt Icon -->
+  <g transform="translate(45, 12)">
+    <rect x="0" y="0" width="20" height="26" fill="#1e293b" rx="2" stroke="#3b82f6" stroke-width="1"/>
+    <line x1="4" y1="6" x2="16" y2="6" stroke="#60a5fa" stroke-width="1.5"/>
+    <line x1="4" y1="10" x2="16" y2="10" stroke="#60a5fa" stroke-width="1"/>
+    <line x1="4" y1="14" x2="12" y2="14" stroke="#60a5fa" stroke-width="1"/>
+    <line x1="4" y1="18" x2="16" y2="18" stroke="#60a5fa" stroke-width="1"/>
+    <circle cx="14" cy="22" r="3" fill="#10b981"/>
+  </g>
+  
+  <!-- Text: Undash-cop -->
+  <text x="75" y="25" font-family="Arial, sans-serif" font-size="14" font-weight="bold" fill="#f1f5f9">
+    Undash-cop
+  </text>
+  
+  <!-- Text: Metrics Billing -->
+  <text x="75" y="42" font-family="Arial, sans-serif" font-size="10" fill="#94a3b8">
+    Metrics Billing Platform
+  </text>
+</svg>
