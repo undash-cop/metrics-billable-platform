@@ -164,7 +164,7 @@ The documentation site includes:
 - Implementation details
 
 ### Quick Links
-- **[Documentation Site](./docs/index.md)** - Complete documentation website
+- **[Documentation Site](./docs/)** - Complete documentation website
 - **[Getting Started](./docs/getting-started/)** - Installation and setup
 - **[API Reference](./docs/api/)** - Complete API documentation
 - **[Architecture](./docs/architecture/)** - System architecture
@@ -318,7 +318,7 @@ See [Production Readiness Review](docs/PRODUCTION_READINESS_REVIEW.md) for detai
 
 ## 🆘 Support
 
-- **Documentation**: See [Documentation Site](./docs/index.md)
+- **Documentation**: See [Documentation Site](./docs/)
 - **Troubleshooting**: See [Troubleshooting Guide](./docs/operations/troubleshooting.md)
 - **Quick Reference**: See [Quick Reference](./docs/QUICK_REFERENCE.md)
 
