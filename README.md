@@ -311,7 +311,8 @@ See [Production Readiness Review](docs/PRODUCTION_READINESS_REVIEW.md) for detai
 
 ## 📝 License
 
-[License](./LICENSE.md)
+[License](./LICENSE)
+[@COPYRIGHT](./COPYRIGHT)
 
 ---
 
