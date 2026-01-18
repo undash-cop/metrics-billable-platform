@@ -164,11 +164,11 @@ The documentation site includes:
 - Implementation details
 
 ### Quick Links
-- **[Documentation Site](./docs/)** - Complete documentation website
-- **[Getting Started](./docs/getting-started/)** - Installation and setup
-- **[API Reference](./docs/api/)** - Complete API documentation
-- **[Architecture](./docs/architecture/)** - System architecture
-- **[Operations](./docs/operations/)** - Operations and troubleshooting
+- **[Documentation Site](./docs/INDEX.md)** - Complete documentation website
+- **[Getting Started](./docs/getting-started/index.md)** - Installation and setup
+- **[API Reference](./docs/api/index.md)** - Complete API documentation
+- **[Architecture](./docs/architecture/index.md)** - System architecture
+- **[Operations](./docs/operations/index.md)** - Operations and troubleshooting
 
 ### Reference Documentation
 - **[Deployment Guide](./docs/getting-started/deployment.md)** - Step-by-step deployment
@@ -318,7 +318,7 @@ See [Production Readiness Review](docs/PRODUCTION_READINESS_REVIEW.md) for detai
 
 ## 🆘 Support
 
-- **Documentation**: See [Documentation Site](./docs/)
+- **Documentation**: See [Documentation Site](./docs/INDEX.md)
 - **Troubleshooting**: See [Troubleshooting Guide](./docs/operations/troubleshooting.md)
 - **Quick Reference**: See [Quick Reference](./docs/QUICK_REFERENCE.md)
 
