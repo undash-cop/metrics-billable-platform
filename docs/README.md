@@ -43,4 +43,4 @@ npm run docs:dev
 ## See Also
 
 - [Main README](./README.md)
-- [Documentation Index](/index)
+- [Documentation Index](/index.md)
