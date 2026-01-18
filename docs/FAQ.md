@@ -308,7 +308,7 @@ See [Monitoring Guide](/operations/monitoring) for details.
 
 ### Where can I find more documentation?
 
-- [Documentation Index](/) - Complete documentation index
+- [Documentation Index](./docs/INDEX.md) - Complete documentation index
 - [Quick Reference](/QUICK_REFERENCE) - Quick reference
 - [Troubleshooting Guide](/operations/troubleshooting) - Common issues
 
@@ -535,4 +535,4 @@ Yes, use the email notifications API:
 
 ---
 
-For more questions, see the documentation index: [Documentation Index](/)
+For more questions, see the documentation index: [Documentation Index](./docs/INDEX.md)
