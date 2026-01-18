@@ -1,0 +1,74 @@
+name = "metrics-billable-platform"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Cron triggers
+[triggers]
+crons = [
+  "*/5 * * * *",  # D1 to RDS migration - every 5 minutes
+  "0 2 * * *",    # Reconciliation - daily at 2 AM UTC
+  "0 3 * * *",    # D1 cleanup - daily at 3 AM UTC
+  "0 2 1 * *",    # Invoice generation - 1st of each month at 2 AM UTC
+  "0 */6 * * *",  # Payment retry - every 6 hours
+  "0 * * * *",    # Alert evaluation - every hour
+  "0 1 * * *",    # Exchange rate sync - daily at 1 AM UTC
+  "0 9 * * *"     # Payment reminders - daily at 9 AM UTC
+]
+
+[env.production]
+name = "metrics-billable-platform-prod"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+MIGRATION_BATCH_SIZE = "1000"
+MIGRATION_MAX_BATCHES = "10"
+
+[env.production.triggers]
+    crons = [
+      "*/5 * * * *",  # D1 to RDS migration - every 5 minutes
+      "0 2 * * *",    # Reconciliation - daily at 2 AM UTC
+      "0 3 * * *",    # D1 cleanup - daily at 3 AM UTC
+      "0 2 1 * *",    # Invoice generation - 1st of each month at 2 AM UTC
+      "0 */6 * * *",  # Payment retry - every 6 hours
+      "0 * * * *",    # Alert evaluation - every hour
+      "0 1 * * *",    # Exchange rate sync - daily at 1 AM UTC
+      "0 9 * * *"     # Payment reminders - daily at 9 AM UTC
+    ]
+
+[[d1_databases]]
+binding = "EVENTS_DB"
+database_name = "metrics-billable-events"
+database_id = "your-d1-database-id"
+
+[[queues.producers]]
+queue = "usage-events"
+binding = "USAGE_EVENTS_QUEUE"
+
+[[queues.consumers]]
+queue = "usage-events"
+max_batch_size = 100
+max_batch_timeout = 30
+
+# R2 bucket for invoice PDFs
+[[r2_buckets]]
+binding = "INVOICE_PDFS_R2"
+bucket_name = "invoice-pdfs"
+
+[env.production.d1_databases]
+binding = "EVENTS_DB"
+database_name = "metrics-billable-events-prod"
+database_id = "your-d1-database-id-prod"
+
+[[env.production.queues.producers]]
+queue = "usage-events"
+binding = "USAGE_EVENTS_QUEUE"
+
+[[env.production.queues.consumers]]
+queue = "usage-events"
+max_batch_size = 100
+max_batch_timeout = 30
+
+# R2 bucket for invoice PDFs (production)
+[[env.production.r2_buckets]]
+binding = "INVOICE_PDFS_R2"
+bucket_name = "invoice-pdfs-prod"

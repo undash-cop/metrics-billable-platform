@@ -1,0 +1,15 @@
+{
+  "name": "metrics-billing-docs",
+  "version": "1.0.0",
+  "description": "Documentation site for metrics-based billing platform",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "serve": "vitepress serve"
+  },
+  "devDependencies": {
+    "vitepress": "^1.0.0"
+  }
+}

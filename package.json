@@ -1,0 +1,45 @@
+{
+  "name": "metrics-billable-platform",
+  "version": "1.0.0",
+  "description": "Metrics-based billing platform for undash-cop",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "deploy:prod": "wrangler deploy --env production",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest",
+    "test:coverage": "vitest --coverage",
+    "db:migrate:rds": "node scripts/migrate-rds.js",
+    "db:migrate:d1": "wrangler d1 migrations apply EVENTS_DB",
+    "db:migrate:d1:local": "wrangler d1 migrations apply EVENTS_DB --local",
+    "db:migrate:d1:remote": "wrangler d1 migrations apply EVENTS_DB --remote",
+    "db:shell": "wrangler d1 execute EVENTS_DB",
+    "tail": "wrangler tail",
+    "tail:prod": "wrangler tail --env production",
+    "hash-key": "node scripts/hash-api-key.js",
+    "test:admin": "./scripts/test-admin-api.sh",
+    "ingest:example": "node examples/ingest-events.js",
+    "health": "./scripts/check-health.sh",
+    "docs:dev": "cd docs && npm run dev",
+    "docs:build": "cd docs && npm run build",
+    "docs:preview": "cd docs && npm run preview"
+  },
+  "dependencies": {
+    "@cloudflare/workers-types": "^4.20241127.0",
+    "decimal.js": "^10.4.3",
+    "pg": "^8.11.3",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/pg": "^8.10.9",
+    "typescript": "^5.3.3",
+    "vitest": "^1.1.0",
+    "wrangler": "^3.19.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
