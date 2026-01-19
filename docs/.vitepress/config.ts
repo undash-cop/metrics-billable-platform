@@ -3,7 +3,24 @@ import { defineConfig } from "vitepress";
 
 export default defineConfig({
   base: '/',
+  cleanUrls: true,
   ignoreDeadLinks: true,
+  vite: {
+    build: {
+      rollupOptions: {
+        onwarn(warning, warn) {
+          // Ignore missing virtual markdown imports
+          if (
+            warning.code === 'UNRESOLVED_IMPORT' &&
+            warning.message?.includes('.md.js')
+          ) {
+            return
+          }
+          warn(warning)
+        }
+      }
+    }
+  },
   title: 'Undash-cop Metrics Billing Platform',
   description: 'Documentation for the Undash-cop Metrics Billing Platform',
   themeConfig: {
@@ -30,6 +47,7 @@ export default defineConfig({
         { text: 'Admin API', link: '/api/admin' },
         { text: 'Events API', link: '/api/events' },
         { text: 'Payments API', link: '/api/payments' },
+        { text: 'Examples', link: '/api/examples' },
       ],
       '/architecture/': [
         { text: 'Architecture', link: '/architecture/index' },
