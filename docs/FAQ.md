@@ -41,7 +41,7 @@ curl -X POST https://api.example.com/events \
   }'
 ```
 
-See [API Examples](/api/examples.md) for more examples.
+See [API Examples](/api/examples) for more examples.
 
 ### What happens if I send the same event twice?
 
@@ -321,7 +321,7 @@ See [Monitoring Guide](/operations/monitoring) for details.
 
 ### Where can I find code examples?
 
-- [API Examples](/api/examples.md) - API usage examples
+- [API Examples](/api/examples) - API usage examples
 - `examples/api-client.ts` - TypeScript client
 - `examples/ingest-events.js` - Event ingestion script
 

@@ -30,7 +30,6 @@ export default defineConfig({
         { text: 'Admin API', link: '/api/admin' },
         { text: 'Events API', link: '/api/events' },
         { text: 'Payments API', link: '/api/payments' },
-        { text: 'Examples', link: '/api/examples' },
       ],
       '/architecture/': [
         { text: 'Architecture', link: '/architecture/index' },
