@@ -10,8 +10,8 @@ ADD COLUMN last_retry_at TIMESTAMP WITH TIME ZONE,
 ADD COLUMN retry_history JSONB DEFAULT '[]'::jsonb;
 
 -- Add index for finding payments ready for retry
-CREATE INDEX idx_payments_retry ON payments(status, next_retry_at)
-WHERE status = 'failed' AND next_retry_at IS NOT NULL AND next_retry_at <= NOW();
+CREATE INDEX idx_payments_failed_retry ON payments (next_retry_at)
+WHERE status = 'failed' AND next_retry_at IS NOT NULL;
 
 -- Add index for retry count tracking
 CREATE INDEX idx_payments_retry_count ON payments(status, retry_count)

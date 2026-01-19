@@ -38,36 +38,31 @@ COMMENT ON COLUMN alert_rules.comparison_period IS 'Time period to compare again
 COMMENT ON COLUMN alert_rules.spike_threshold_percent IS 'For usage_spike alerts: percentage increase threshold (e.g., 50.00 for 50% increase)';
 COMMENT ON COLUMN alert_rules.cooldown_minutes IS 'Minutes to wait before sending another alert for the same rule (prevents spam)';
 
--- Create alert_history table
-CREATE TABLE alert_history (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    alert_rule_id UUID NOT NULL REFERENCES alert_rules(id) ON DELETE CASCADE,
-    organisation_id UUID NOT NULL REFERENCES organisations(id) ON DELETE CASCADE,
-    project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
-    alert_type VARCHAR(50) NOT NULL,
-    metric_name VARCHAR(100),
-    unit VARCHAR(50),
-    threshold_value NUMERIC(20, 2) NOT NULL,
-    actual_value NUMERIC(20, 2) NOT NULL, -- Actual value that triggered the alert
-    comparison_period VARCHAR(20) NOT NULL,
-    period_start TIMESTAMP WITH TIME ZONE NOT NULL,
-    period_end TIMESTAMP WITH TIME ZONE NOT NULL,
-    status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'sent', 'failed', 'acknowledged')),
-    notification_channels TEXT[] NOT NULL,
-    sent_at TIMESTAMP WITH TIME ZONE, -- When alert was sent
-    acknowledged_at TIMESTAMP WITH TIME ZONE, -- When alert was acknowledged
-    acknowledged_by VARCHAR(255), -- User who acknowledged
-    error_message TEXT, -- Error if notification failed
-    metadata JSONB, -- Additional context (e.g., spike percentage, comparison values)
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-);
+-- ALTER TABLE alert_history table
+ALTER TABLE alert_history 
+ADD COLUMN  alert_rule_id UUID NOT NULL REFERENCES alert_rules(id) ON DELETE CASCADE,
+ADD COLUMN project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+ADD COLUMN metric_name VARCHAR(100),
+ADD COLUMN     unit VARCHAR(50),
+ADD COLUMN     threshold_value NUMERIC(20, 2) NOT NULL,
+ADD COLUMN     actual_value NUMERIC(20, 2) NOT NULL, -- Actual value that triggered the alert
+ADD COLUMN     comparison_period VARCHAR(20) NOT NULL,
+ADD COLUMN     period_start TIMESTAMP WITH TIME ZONE NOT NULL,
+ADD COLUMN     period_end TIMESTAMP WITH TIME ZONE NOT NULL,
+ADD COLUMN     status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'sent', 'failed', 'acknowledged')),
+ADD COLUMN     notification_channels TEXT[] NOT NULL,
+ADD COLUMN     sent_at TIMESTAMP WITH TIME ZONE, -- When alert was sent
+ADD COLUMN     acknowledged_at TIMESTAMP WITH TIME ZONE, -- When alert was acknowledged
+ADD COLUMN     acknowledged_by VARCHAR(255), -- User who acknowledged
+ADD COLUMN     error_message TEXT -- Error if notification failed
+;
 
 CREATE INDEX idx_alert_history_rule_id ON alert_history(alert_rule_id);
 CREATE INDEX idx_alert_history_organisation_id ON alert_history(organisation_id);
 CREATE INDEX idx_alert_history_project_id ON alert_history(project_id) WHERE project_id IS NOT NULL;
 CREATE INDEX idx_alert_history_status ON alert_history(status);
 CREATE INDEX idx_alert_history_created_at ON alert_history(created_at DESC);
-CREATE INDEX idx_alert_history_rule_created ON alert_history(alert_rule_id, created_at DESC); -- For cooldown checks
+CREATE OR REPLACE INDEX idx_alert_history_rule_created ON alert_history(alert_rule_id, created_at DESC); -- For cooldown checks
 
 COMMENT ON TABLE alert_history IS 'History of all triggered alerts';
 COMMENT ON COLUMN alert_history.actual_value IS 'Actual usage/cost value that triggered the alert';

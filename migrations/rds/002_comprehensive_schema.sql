@@ -4,6 +4,7 @@
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm"; -- For text search if needed
+CREATE EXTENSION IF NOT EXISTS "btree_gist"; -- For range queries
 
 -- ============================================================================
 -- CORE TENANT TABLES
@@ -311,7 +312,7 @@ CREATE TABLE idempotency_keys (
 
 CREATE UNIQUE INDEX idx_idempotency_keys_key ON idempotency_keys(idempotency_key);
 CREATE INDEX idx_idempotency_keys_entity ON idempotency_keys(entity_type, entity_id);
-CREATE INDEX idx_idempotency_keys_expires_at ON idempotency_keys(expires_at) WHERE expires_at < NOW();
+CREATE INDEX idx_idempotency_keys_expires_at ON idempotency_keys (expires_at);
 
 COMMENT ON TABLE idempotency_keys IS 'Tracks idempotent operations. Prevents duplicate processing.';
 COMMENT ON COLUMN idempotency_keys.request_hash IS 'Hash of request payload to detect request changes with same key';
