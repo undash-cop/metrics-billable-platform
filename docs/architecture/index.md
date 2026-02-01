@@ -19,10 +19,10 @@ High-level architecture of the Undash-cop Metrics Billing Platform.
                 │          │           │
                 ▼          ▼           ▼
      ┌─────────────┐ ┌────────────┐ ┌───────────┐
-     │ Cloudflare  │ │ Cloudflare │ │ Cloudflare│
-     │    D1       │ │   Queues   │ │   R2      │
-     │ (Hot Events)│ │ (Reliable  │ │ (Object   │
-     │             │ │ Processing)│ │ Storage)  │
+     │ Cloudflare  │ │ Cron (5m)  │ │ Cloudflare│
+     │    D1       │ │ D1→RDS+agg │ │   R2      │
+     │ (Hot Events │ │ (D1 queue) │ │ (Object   │
+     │  as queue)  │ │             │ │ Storage)  │
      └─────────────┘ └──────┬─────┘ └───────────┘
                             │
                             ▼
@@ -54,11 +54,11 @@ High-level architecture of the Undash-cop Metrics Billing Platform.
 - **API Key Cache** - Fast API key validation
 - **Retention** - Events retained for 7 days after processing
 
-### Cloudflare Queues
+### D1 as Queue (Cron Polling)
 
-- **Event Processing Queue** - Reliable event processing
-- **Dead-Letter Queue** - Failed message handling
-- **Retry Logic** - Exponential backoff for retries
+- **D1 as queue** - Events land in D1; no Cloudflare Queues required
+- **Cron every 5 min** - Polls D1 for unprocessed events, copies to RDS, updates usage_aggregates, removes from D1
+- **Idempotency** - RDS insert uses idempotency_key; aggregation errors are logged and skipped
 
 ### Amazon RDS (PostgreSQL)
 
@@ -80,12 +80,10 @@ High-level architecture of the Undash-cop Metrics Billing Platform.
 
 1. Client sends event to `/api/v1/events`
 2. Worker validates API key (checks D1 cache or RDS)
-3. Worker writes event to D1
-4. Worker publishes event to Queue
-5. Worker returns 202 Accepted
-6. Queue consumer processes event
-7. Event aggregated in RDS
-8. D1 event marked as processed
+3. Worker writes event to D1 (D1 acts as queue)
+4. Worker returns 202 Accepted
+5. Cron (every 5 min) fetches unprocessed events from D1
+6. Cron inserts into RDS usage_events, then aggregates from D1 into RDS usage_aggregates and removes events from D1
 
 ### Invoice Generation Flow
 
@@ -133,10 +131,10 @@ High-level architecture of the Undash-cop Metrics Billing Platform.
 
 ### Reliability
 
-- **Queue-Based Processing** - Reliable event processing
-- **Dead-Letter Queue** - Failed message handling
-- **Retry Logic** - Exponential backoff for retries
-- **Error Handling** - Comprehensive error handling and logging
+- **D1 as Queue** - Events stored in D1; cron polls every 5 min for migration + aggregation (no Cloudflare Queues)
+- **Idempotency** - RDS insert and aggregation support safe retries
+- **Error Handling** - Aggregation errors logged and skipped per period; migration fail-fast
+- **Comprehensive Logging** - All operations and failures logged
 
 ### Security
 
@@ -149,7 +147,7 @@ High-level architecture of the Undash-cop Metrics Billing Platform.
 ## Scalability
 
 - **Serverless** - Auto-scaling Cloudflare Workers
-- **Queue-Based** - Handles high throughput
+- **D1 + Cron** - D1 holds events; cron batches migration and aggregation (no queue product required)
 - **Database Indexing** - Optimized queries
 - **Caching** - D1 cache for API keys
 

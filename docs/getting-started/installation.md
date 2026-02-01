@@ -66,11 +66,9 @@ database_id = "your-database-id-here"
 wrangler d1 migrations apply EVENTS_DB
 ```
 
-### Create Queues
+### Queues (Not Required)
 
-1. Go to Cloudflare Dashboard → Workers → Queues
-2. Create queue: `usage-events`
-3. Create queue: `usage-events-dlq` (optional)
+The platform uses **D1 as a queue**: a cron runs every 5 minutes to migrate events from D1 to RDS and update usage_aggregates. No Cloudflare Queues need to be created.
 
 ## Step 5: Configure Environment
 

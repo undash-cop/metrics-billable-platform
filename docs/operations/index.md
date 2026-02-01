@@ -58,7 +58,7 @@ ORDER BY created_at DESC;
 Check error logs and failed operations:
 
 ```bash
-# Check dead-letter queue
+# Check migration cron logs (D1 → RDS + aggregation)
 # Review Cloudflare Workers logs for errors
 # Check reconciliation job results
 ```
@@ -119,7 +119,7 @@ Set up alerts for:
 - Failed cron jobs
 - Payment processing failures
 - Database connection issues
-- Queue backlog
+- Migration cron backlog (unprocessed events in D1)
 
 ## Troubleshooting
 

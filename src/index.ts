@@ -4,7 +4,6 @@ import { handleEvents } from './workers/events.js';
 import { handleRazorpayWebhook } from './workers/webhook.js';
 import { handleCreatePaymentOrder } from './workers/payments.js';
 import { handleAdminApi } from './workers/admin/index.js';
-import { handleQueueBatch, QueueMessage } from './workers/queue-consumer.js';
 import { handleD1ToRdsMigration } from './workers/cron-d1-to-rds.js';
 import { handleReconciliation } from './workers/cron-reconciliation.js';
 import { handleD1Cleanup } from './workers/cron-d1-cleanup.js';
@@ -61,10 +60,6 @@ export default {
     }
 
     return new Response('Not found', { status: 404 });
-  },
-
-  async queue(batch: MessageBatch<QueueMessage>, env: Env): Promise<void> {
-    return handleQueueBatch(batch, env);
   },
 
   async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {

@@ -363,9 +363,10 @@ wrangler tail --env production | grep "cron"
 SELECT count(*) FROM pg_stat_activity;
 ```
 
-### Check Queue Depth
+### Check Migration Backlog (D1 as Queue)
 ```bash
-# Check Cloudflare Dashboard → Queues → usage-events
+# Check unprocessed events in D1: usage_events WHERE processed_at IS NULL
+# Or review migration cron logs (every 5 min)
 ```
 
 ### Check D1 Storage

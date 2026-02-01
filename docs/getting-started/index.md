@@ -31,9 +31,11 @@ The Metrics Billing Platform is a production-ready, multi-tenant billing system 
 ## Architecture
 
 ```
-Client Apps → Cloudflare Workers → D1 (Hot Storage) → Queues → RDS (Financial SOT)
-                                                              ↓
-                                                         Razorpay (Payments)
+Client Apps → Cloudflare Workers → D1 (Hot Storage, acts as queue)
+                                          ↓
+                              Cron (every 5 min) → RDS (Financial SOT)
+                                          ↓
+                                    Razorpay (Payments)
 ```
 
 ## Next Steps

@@ -95,28 +95,29 @@
 
 ### P2 - Medium Priority Fixes
 
-#### 7. Dead-Letter Queue ✅
+#### 7. D1 as Queue (Migration + Aggregation) ✅
 
 **Implementation**:
-- DLQ binding in wrangler.toml
-- Queue retry logic sends to DLQ after max retries
-- Manual review capability
+- D1 holds events; cron every 5 min migrates to RDS and updates usage_aggregates
+- No Cloudflare Queues or DLQ required
+- Aggregation errors logged per period; idempotent RDS insert
 
 **Files**:
-- `src/utils/queue-retry.ts`
-- `wrangler.toml`
+- `src/workers/cron-d1-to-rds.ts`
+- `src/services/aggregation.ts`
+- `wrangler.toml` (cron trigger)
 
 ---
 
 #### 8. Retry Logic ✅
 
 **Implementation**:
-- Exponential backoff retry logic
-- Configurable retry options
-- Queue message retry handling
+- Cron retries next run (every 5 min)
+- Aggregation errors logged per period; migration fail-fast
+- Idempotent RDS insert and aggregation
 
 **Files**:
-- `src/utils/queue-retry.ts`
+- `src/workers/cron-d1-to-rds.ts`
 
 ---
 

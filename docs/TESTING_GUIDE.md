@@ -234,15 +234,15 @@ assert.equal(idempotencyErrors, 9);
 #    - Retry succeeds without duplicates
 ```
 
-### Test Queue Processing Failure
+### Test Migration / Aggregation Failure
 
 ```bash
-# 1. Send events to queue
-# 2. Simulate processing failure
+# 1. Ingest events (stored in D1)
+# 2. Simulate migration/aggregation failure (e.g. RDS down during cron)
 # 3. Verify:
-#    - Events retry with exponential backoff
-#    - Failed events go to DLQ after max retries
-#    - No data loss
+#    - Events remain in D1 (unprocessed)
+#    - Next cron run retries; idempotent insert avoids duplicates
+#    - Aggregation errors logged per period; no data loss
 ```
 
 ---

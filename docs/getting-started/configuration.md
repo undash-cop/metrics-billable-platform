@@ -138,21 +138,13 @@ crons = [
   "0 2 1 * *"     # Invoice generation - 1st of each month at 2 AM UTC
 ]
 
-# D1 Database binding
+# D1 Database binding (D1 acts as queue; cron polls every 5 min)
 [[d1_databases]]
 binding = "EVENTS_DB"
 database_name = "metrics-billable-events"
 database_id = "your-d1-database-id"
 
-# Queue bindings
-[[queues.producers]]
-queue = "usage-events"
-binding = "USAGE_EVENTS_QUEUE"
-
-[[queues.consumers]]
-queue = "usage-events"
-max_batch_size = 100
-max_batch_timeout = 30
+# No Cloudflare Queues required - D1 as queue (cron migration + aggregation)
 
 # R2 bucket for invoice PDFs
 [[r2_buckets]]

@@ -9,8 +9,7 @@ The Undash-cop Metrics Billing Platform is a production-ready, multi-tenant, usa
 ### What technologies does it use?
 
 - **Cloudflare Workers** - APIs and event ingestion
-- **Cloudflare D1** - Hot event storage
-- **Cloudflare Queues** - Reliable event processing
+- **Cloudflare D1** - Hot event storage (D1 acts as queue; cron polls every 5 min)
 - **Amazon RDS PostgreSQL** - Financial source of truth
 - **Razorpay** - Payment processing (India-first)
 
@@ -19,7 +18,7 @@ The Undash-cop Metrics Billing Platform is a production-ready, multi-tenant, usa
 Yes! All production readiness fixes have been implemented:
 - ✅ 17/17 production fixes completed
 - ✅ Security (auth, RBAC, rate limiting)
-- ✅ Reliability (retry, DLQ, error handling)
+- ✅ Reliability (D1 as queue, cron migration + aggregation, error handling)
 - ✅ Observability (logging, metrics, alerting)
 - ✅ Data integrity (validation, reconciliation)
 
@@ -51,15 +50,15 @@ The platform is idempotent. If you send the same `event_id` twice, the second re
 
 The platform is designed for high throughput:
 - Events are stored in D1 immediately (fast)
-- Processing happens asynchronously via queues
+- A cron runs every 5 minutes to migrate events to RDS and update usage_aggregates (D1 as queue)
 - Rate limiting: 30 requests/minute for admin, higher for events
 
 ### What happens if ingestion fails?
 
 - Events are stored in D1 first (fast write)
 - If D1 write fails, you get an error response
-- If processing fails, events are retried with exponential backoff
-- After max retries, events go to dead-letter queue
+- The cron retries on the next run (every 5 min); aggregation errors are logged and skipped per period
+- No Cloudflare Queues or dead-letter queue required
 
 ---
 

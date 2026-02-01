@@ -36,12 +36,11 @@ Each risk includes severity, impact, likelihood, and specific mitigations.
 **Gaps**:
 - ❌ No reconciliation job to detect missing events
 - ❌ No alerting on migration failures
-- ❌ No dead-letter queue for failed migrations
-- ❌ D1 events can be purged before migration completes
+- ❌ D1 events can be purged before migration completes (mitigated: D1 as queue; cron aggregates and removes from D1)
 
 **Recommended Mitigations**:
 1. **Add reconciliation job**: Daily job comparing D1 vs RDS event counts by organisation/project/metric
-2. **Implement dead-letter queue**: Failed events go to DLQ for manual review
+2. **D1 as queue**: Events in D1; cron every 5 min migrates + aggregates; aggregation errors logged per period (implemented)
 3. **Add alerting**: Alert on migration failures, skipped events > threshold, processing lag
 4. **D1 retention policy**: Keep events in D1 for 7 days after `processed_at` before purging
 5. **Add idempotency check**: Before marking processed, verify event exists in RDS
@@ -218,35 +217,32 @@ Each risk includes severity, impact, likelihood, and specific mitigations.
 
 ---
 
-### 7. **MEDIUM: Queue Processing Failures**
+### 7. **MEDIUM: Migration / Aggregation Failures (D1 as Queue)**
 
 **Category**: Data Loss  
 **Severity**: MEDIUM  
 **Impact**: Events not aggregated = missing usage data = incorrect invoices  
-**Likelihood**: Medium (queue consumer failures, processing errors)
+**Likelihood**: Medium (cron failures, RDS/D1 errors)
 
 **Risk Description**:
-- Queue consumer failures could cause events to be lost
-- No dead-letter queue for failed messages
-- No retry logic with exponential backoff
-- No monitoring of queue depth or processing lag
+- Migration cron failures could delay or block aggregation
+- Aggregation errors logged per period (no DLQ; events remain in D1)
+- Cron retries next run (every 5 min); idempotent RDS insert
 
 **Current Mitigations**:
-- ✅ Queue publishing is non-blocking (doesn't fail request)
-- ✅ Events stored in D1 before queue publishing
+- ✅ D1 as queue: events stored in D1; no queue product required
+- ✅ Cron every 5 min: migrates to RDS, updates usage_aggregates, removes from D1
+- ✅ Aggregation errors logged per period; migration fail-fast
+- ✅ Idempotent RDS insert and aggregation
 
 **Gaps**:
-- ❌ No dead-letter queue for failed messages
-- ❌ No retry logic for failed processing
-- ❌ No monitoring of queue depth
-- ❌ No alerting on queue processing failures
+- ❌ Monitor unprocessed events in D1 (processed_at IS NULL)
+- ❌ Alert on migration/aggregation failure rate
 
 **Recommended Mitigations**:
-1. **Add dead-letter queue**: Failed messages go to DLQ for manual review
-2. **Add retry logic**: Exponential backoff for transient failures
-3. **Add queue monitoring**: Track queue depth, processing rate, failures
-4. **Add alerting**: Alert on queue depth > threshold, processing failures
-5. **Add metrics**: Track queue processing success rate, lag time
+1. **Add monitoring**: Track migration cron success, periodsAggregated, aggregationErrors
+2. **Add alerting**: Alert on migration failures, aggregation error rate > threshold
+3. **Add metrics**: Already tracked in migration cron (periodsAggregated, aggregationErrors)
 
 ---
 
@@ -292,7 +288,7 @@ Each risk includes severity, impact, likelihood, and specific mitigations.
 **Likelihood**: Medium (aggregation failures, race conditions, partial failures)
 
 **Risk Description**:
-- Queue consumer failures could prevent aggregation
+- Migration/aggregation cron failures could prevent aggregation
 - Race condition: Events ingested after aggregation completes
 - No reconciliation of events vs aggregates
 - Aggregation could fail silently
@@ -359,7 +355,7 @@ Each risk includes severity, impact, likelihood, and specific mitigations.
 | API Key Exposure | HIGH | Data breach | Medium | P1 |
 | D1 Storage Cost Explosion | HIGH | Cost overrun | High | P1 |
 | RDS Connection Pool Exhaustion | HIGH | Service unavailability | Medium | P1 |
-| Queue Processing Failures | MEDIUM | Missing usage data | Medium | P2 |
+| Migration/Aggregation Failures | MEDIUM | Missing usage data | Medium | P2 |
 | Invoice Calculation Errors | MEDIUM | Customer disputes | Low | P2 |
 | Missing Usage Aggregates | MEDIUM | Lost revenue | Medium | P2 |
 | Admin API Security Gaps | LOW | Data breach | Low | P3 |
@@ -383,8 +379,8 @@ Each risk includes severity, impact, likelihood, and specific mitigations.
 5. Add connection pool monitoring
 
 ### Phase 3 (P2 - Medium - Week 2-3)
-1. Add dead-letter queue for failed queue messages
-2. Add retry logic for queue processing
+1. D1 as queue: cron migration + aggregation (implemented)
+2. Monitor migration/aggregation metrics and alert on failures
 3. Add reconciliation job for usage aggregates
 4. Add validation for invoice calculations
 5. Add audit trail for pricing rules
@@ -413,7 +409,7 @@ Each risk includes severity, impact, likelihood, and specific mitigations.
 - High API error rate
 
 ### Medium Priority Alerts (P2)
-- Queue depth > threshold
+- Migration backlog (unprocessed events in D1) > threshold
 - Aggregation failures
 - Invoice calculation errors
 - Missing usage aggregates
@@ -430,7 +426,7 @@ Each risk includes severity, impact, likelihood, and specific mitigations.
 
 ### Chaos Testing
 - Simulate RDS failures during migration
-- Simulate queue processing failures
+- Simulate migration/aggregation cron failures
 - Simulate webhook delivery failures
 - Simulate D1 storage exhaustion
 

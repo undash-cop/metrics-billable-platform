@@ -12,7 +12,8 @@ import { z } from 'zod';
  * Design Decisions:
  * 1. Idempotency: Check D1 first before any processing to handle retries safely
  * 2. API Key Validation: Query RDS to get project and organisation IDs
- * 3. Async Processing: Write to D1 and Queue, return 202 immediately
+ * 3. D1 as queue: Events are stored in D1 only; a cron (every 5 min) polls D1 and
+ *    migrates to RDS + updates usage_aggregates. No Cloudflare Queues required.
  * 4. Error Handling: Explicit error types for different failure modes
  * 5. Retry Safety: Idempotency check happens first, so retries are safe
  */
@@ -142,38 +143,6 @@ async function storeEventInD1(
 }
 
 /**
- * Publish event to Cloudflare Queue for async processing
- * 
- * Queue consumer will handle aggregation and downstream processing.
- * This is fire-and-forget - we don't wait for queue processing.
- */
-async function publishToQueue(
-  queue: Queue,
-  event: {
-    eventId: string;
-    projectId: string;
-    organisationId: string;
-    metricName: string;
-  }
-): Promise<void> {
-  try {
-    await queue.send({
-      type: 'usage_event',
-      event_id: event.eventId,
-      project_id: event.projectId,
-      organisation_id: event.organisationId,
-      metric_name: event.metricName,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error) {
-    // Log but don't fail - event is already in D1
-    // Queue retries will handle this
-    console.error('Failed to publish to queue:', error);
-    // In production, you might want to retry or use a dead-letter queue
-  }
-}
-
-/**
  * Main handler for POST /events endpoint
  * 
  * Flow:
@@ -182,9 +151,8 @@ async function publishToQueue(
  * 3. Extract and validate API key
  * 4. Check idempotency (early return if duplicate)
  * 5. Validate API key and get project/org IDs
- * 6. Store event in D1
- * 7. Publish to queue
- * 8. Return 202 Accepted
+ * 6. Store event in D1 (D1 acts as queue; cron polls every 5 min to migrate + aggregate)
+ * 7. Return 202 Accepted
  */
 export async function handleEvents(request: Request, env: Env): Promise<Response> {
   // Only allow POST method
@@ -287,19 +255,7 @@ export async function handleEvents(request: Request, env: Env): Promise<Response
       throw error;
     }
 
-    // Publish to queue for async processing
-    // Don't await - fire and forget
-    // Queue will handle retries if this fails
-    publishToQueue(env.USAGE_EVENTS_QUEUE, {
-      eventId: eventRequest.event_id,
-      projectId,
-      organisationId,
-      metricName: eventRequest.metric_name,
-    }).catch((error) => {
-      // Log queue errors but don't fail the request
-      // Event is already stored in D1, so it can be processed later
-      console.error('Queue publish failed (non-fatal):', error);
-    });
+    // Event is in D1; cron (every 5 min) will poll D1 and migrate to RDS + update aggregates
 
     // Return 202 Accepted - event accepted for processing
     const response: EventResponse = {

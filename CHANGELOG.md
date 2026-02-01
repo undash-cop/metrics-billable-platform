@@ -4,6 +4,19 @@ All notable changes to the metrics-based billing platform.
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+#### D1 as Queue (No Cloudflare Queues)
+- **Event processing**: Replaced Cloudflare Queues with D1-as-queue (polling). Events are stored in D1; a cron runs every 5 minutes to migrate events to RDS and update usage_aggregates, then remove them from D1.
+- **Benefits**: No Cloudflare Queues product or paid Workers plan required; same flow with cron-based processing.
+- **Removed**: Queue producers/consumers from `wrangler.toml`; queue publish from event ingestion; queue consumer handler.
+- **Updated**: D1→RDS cron now also runs aggregation per distinct (org, project, metric, month, year) and removes aggregated events from D1.
+- **Documentation**: All docs updated to describe D1-as-queue and cron migration + aggregation.
+
+---
+
 ## [1.0.0] - 2024-01-15
 
 ### 🎉 Initial Production Release
@@ -30,8 +43,8 @@ Complete production-ready billing platform with all critical features implemente
 - D1 retention policy and cleanup cron
 
 #### Medium Priority (P2)
-- Dead-letter queue for failed messages
-- Retry logic with exponential backoff
+- D1 as queue; cron migration + aggregation (replaces DLQ/Queues)
+- Retry logic (cron retries; aggregation errors logged)
 - Invoice calculation validation
 - Usage aggregate reconciliation
 - Pricing rules audit trail
@@ -45,8 +58,7 @@ Complete production-ready billing platform with all critical features implemente
 
 ### Infrastructure
 - Cloudflare Workers for APIs and ingestion
-- Cloudflare D1 for hot event storage
-- Cloudflare Queues for reliable processing
+- Cloudflare D1 for hot event storage (D1 as queue; cron every 5 min)
 - Amazon RDS PostgreSQL for financial SOT
 - Razorpay for payment processing
 

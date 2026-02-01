@@ -15,10 +15,9 @@
 - [ ] Database ID noted
 - [ ] Bindings configured in `wrangler.toml`
 
-#### Cloudflare Queues
-- [ ] Queue created: `usage-events`
-- [ ] Dead-letter queue created: `usage-events-dlq` (optional)
-- [ ] Bindings configured in `wrangler.toml`
+#### D1 as Queue (No Cloudflare Queues)
+- [ ] D1 database created and cron configured (cron every 5 min migrates D1 → RDS + aggregation)
+- [ ] No Cloudflare Queues required
 
 ---
 
@@ -141,19 +140,7 @@ binding = "EVENTS_DB"
 database_name = "metrics-billable-events"
 database_id = "your-d1-database-id"  # Update this
 
-[[queues.producers]]
-queue = "usage-events"
-binding = "USAGE_EVENTS_QUEUE"
-
-[[queues.consumers]]
-queue = "usage-events"
-max_batch_size = 100
-max_batch_timeout = 30
-
-# Optional: Dead-letter queue
-[[queues.producers]]
-queue = "usage-events-dlq"
-binding = "USAGE_EVENTS_DLQ"
+# No Cloudflare Queues - D1 acts as queue (cron every 5 min)
 ```
 
 ---
@@ -268,7 +255,7 @@ curl -X POST https://your-worker.workers.dev/events \
   - Migration failures
   - Reconciliation discrepancies
   - High error rates
-  - Queue depth
+  - Migration cron backlog (unprocessed events in D1)
 
 #### Log Aggregation
 - Use Cloudflare Logs or external service

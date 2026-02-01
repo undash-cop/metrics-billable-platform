@@ -70,11 +70,12 @@ logger.logError(error, {
 - `database.operations.failed` - Counter: Failed DB operations
 - `database.operation.duration` - Histogram: Query latency
 
-#### Queue Metrics
-- `queue.message_sent` - Counter: Messages sent to queue
-- `queue.message_processed` - Counter: Messages processed
-- `queue.message_failed` - Counter: Failed message processing
-- `queue.*.duration` - Histogram: Processing latency
+#### Migration / Aggregation Metrics (D1 as Queue)
+- `migration.totalFetched` - Events fetched from D1 per run
+- `migration.successfullyInserted` - Events inserted into RDS
+- `migration.periodsAggregated` - Usage aggregate periods updated
+- `migration.aggregationErrors` - Aggregation errors per run
+- `migration` operation duration
 
 ### 3. Alerting
 
@@ -248,25 +249,23 @@ logger.logError(error, {
 - Warning: >10 failures/minute
 - Critical: >50 failures/minute
 
-### 6. Queue Processing
+### 6. Migration / Aggregation (D1 as Queue)
 
-**What**: Queue message processing rate and failures
+**What**: Migration cron (every 5 min) processing rate and failures
 
 **Why**:
-- **Data Flow**: Queue failures block data processing
-- **Backlog**: Unprocessed messages indicate issues
-- **Reliability**: Queue is critical for async processing
-- **Latency**: Processing delays affect billing timeliness
+- **Data Flow**: Migration/aggregation failures block data processing
+- **Backlog**: Unprocessed events in D1 indicate issues
+- **Reliability**: Cron is critical for D1 → RDS flow
+- **Latency**: Processing runs every 5 min; backlog indicates delays
 
 **Metrics**:
-- `queue.message_sent` (send rate)
-- `queue.message_processed` (processing rate)
-- `queue.message_failed` (failure rate)
-- `queue.*.duration` (processing latency)
+- `migration.totalFetched`, `migration.successfullyInserted`, `migration.periodsAggregated`
+- `migration.aggregationErrors`, `migration` duration
 
 **Alert Thresholds**:
-- Warning: >10 failures/minute
-- Critical: >50 failures/minute
+- Warning: >10 migration failures per run OR aggregation errors >10%
+- Critical: Cron failing repeatedly OR aggregation errors >50%
 
 ### 7. Financial Reconciliation
 
@@ -407,7 +406,7 @@ if (alert) {
    - API error rate
    - API latency (P50, P95, P99)
    - Database operation success rate
-   - Queue processing rate
+   - Migration cron rate (D1 → RDS + aggregation)
 
 5. **Financial Dashboard**
    - Total revenue (by period)

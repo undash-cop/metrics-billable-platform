@@ -4,25 +4,22 @@ import { DatabaseError } from '../utils/errors.js';
 import { createLogger } from '../utils/logger.js';
 import { createMetricsCollector } from '../utils/metrics.js';
 import { createAlertManager } from '../utils/alerts.js';
+import { aggregateUsage, AggregationPeriod } from '../services/aggregation.js';
 import pg from 'pg';
 
 /**
- * Cloudflare Worker Cron Job: D1 to RDS Event Migration
- * 
- * Purpose: Move usage events from D1 (hot storage) to RDS (financial source of truth)
- * 
+ * Cloudflare Worker Cron Job: D1 to RDS Event Migration (D1 as queue)
+ *
+ * Purpose: Poll D1 for unprocessed events (D1 acts as queue), copy to RDS, then
+ * update usage_aggregates and remove events from D1.
+ *
  * Design Decisions:
- * 1. Batch Processing: Process events in configurable batches to avoid timeouts
- * 2. Idempotency: Use idempotency_key UNIQUE constraint in RDS to prevent duplicates
- * 3. Atomic Operations: Mark events as processed only after successful RDS insert
- * 4. Fail Fast: Stop processing on first error to prevent partial state
- * 5. Comprehensive Logging: Log all operations and failures for auditability
- * 
- * Idempotency Strategy:
- * - RDS has UNIQUE constraint on idempotency_key
- * - On duplicate key error, we skip the event (already processed)
- * - This allows safe retries without double-inserting
- * - Events are marked as processed in D1 only after successful RDS insert
+ * 1. D1 as queue: Events land in D1; this cron runs every 5 min and processes them.
+ * 2. Batch Processing: Process events in configurable batches to avoid timeouts
+ * 3. Idempotency: Use idempotency_key UNIQUE constraint in RDS to prevent duplicates
+ * 4. After inserting into RDS usage_events, aggregate from D1 into usage_aggregates
+ *    (aggregateUsage reads D1, writes RDS, then deletes those events from D1)
+ * 5. Fail Fast: Stop on first insert error; aggregation errors are logged and skipped
  */
 
 interface D1UsageEvent {
@@ -44,6 +41,31 @@ interface MigrationStats {
   skippedDuplicates: number;
   failed: number;
   errors: Array<{ eventId: string; error: string }>;
+  periodsAggregated: number;
+  aggregationErrors: number;
+}
+
+/** Unique (organisation_id, project_id, metric_name, month, year) from events */
+function getDistinctPeriods(events: D1UsageEvent[]): AggregationPeriod[] {
+  const key = (e: D1UsageEvent) => {
+    const d = new Date(e.timestamp * 1000);
+    return `${e.organisation_id}:${e.project_id}:${e.metric_name}:${d.getFullYear()}:${d.getMonth() + 1}`;
+  };
+  const seen = new Set<string>();
+  const periods: AggregationPeriod[] = [];
+  for (const e of events) {
+    if (seen.has(key(e))) continue;
+    seen.add(key(e));
+    const d = new Date(e.timestamp * 1000);
+    periods.push({
+      organisationId: e.organisation_id,
+      projectId: e.project_id,
+      metricName: e.metric_name,
+      month: d.getMonth() + 1,
+      year: d.getFullYear(),
+    });
+  }
+  return periods;
 }
 
 /**
@@ -200,39 +222,6 @@ async function insertEventsIntoRds(
 }
 
 /**
- * Mark events as processed in D1
- * 
- * Only marks events that were successfully inserted into RDS.
- * Uses processed_at timestamp to track when migration occurred.
- */
-async function markEventsAsProcessed(
-  db: D1Database,
-  eventIds: string[]
-): Promise<void> {
-  if (eventIds.length === 0) {
-    return;
-  }
-
-  // D1 has limits on IN clause size, so batch updates
-  const batchSize = 100;
-  const processedAt = Math.floor(Date.now() / 1000); // Unix timestamp
-
-  for (let i = 0; i < eventIds.length; i += batchSize) {
-    const batch = eventIds.slice(i, i + batchSize);
-    const placeholders = batch.map(() => '?').join(',');
-
-    await db
-      .prepare(
-        `UPDATE usage_events 
-         SET processed_at = ? 
-         WHERE id IN (${placeholders})`
-      )
-      .bind(processedAt, ...batch)
-      .run();
-  }
-}
-
-/**
  * Main cron handler
  * 
  * Processes events in batches:
@@ -256,6 +245,8 @@ export async function handleD1ToRdsMigration(
     skippedDuplicates: 0,
     failed: 0,
     errors: [],
+    periodsAggregated: 0,
+    aggregationErrors: 0,
   };
 
   // Configuration
@@ -309,11 +300,20 @@ export async function handleD1ToRdsMigration(
           total: events.length,
         });
 
-        // Mark successfully inserted events as processed in D1
-        // Only mark events that were actually inserted (not skipped duplicates)
-        if (inserted.length > 0) {
-          await markEventsAsProcessed(env.EVENTS_DB, inserted);
-          console.log(`Marked ${inserted.length} events as processed in D1`);
+        // Update usage_aggregates from D1 and remove events from D1 (aggregateUsage deletes from D1)
+        const periods = getDistinctPeriods(events);
+        for (const period of periods) {
+          try {
+            await aggregateUsage(env.EVENTS_DB, rdsPool, period);
+            stats.periodsAggregated++;
+          } catch (aggError) {
+            stats.aggregationErrors++;
+            const msg = aggError instanceof Error ? aggError.message : String(aggError);
+            logger.warn('Aggregation skipped for period', {
+              period: `${period.organisationId}/${period.projectId}/${period.metricName}/${period.year}-${period.month}`,
+              error: msg,
+            });
+          }
         }
 
         // If we got fewer events than batch size, we've processed all available events
@@ -364,6 +364,8 @@ export async function handleD1ToRdsMigration(
         successfullyInserted: stats.successfullyInserted,
         skippedDuplicates: stats.skippedDuplicates,
         failed: stats.failed,
+        periodsAggregated: stats.periodsAggregated,
+        aggregationErrors: stats.aggregationErrors,
         batchesProcessed: batchNumber,
       },
     });
@@ -374,6 +376,8 @@ export async function handleD1ToRdsMigration(
       successfullyInserted: stats.successfullyInserted,
       skippedDuplicates: stats.skippedDuplicates,
       failed: stats.failed,
+      periodsAggregated: stats.periodsAggregated,
+      aggregationErrors: stats.aggregationErrors,
     });
 
     // If there are errors, log them and alert

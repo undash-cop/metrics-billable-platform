@@ -13,7 +13,7 @@ The platform has completed all 17 production readiness fixes and is ready for pr
 | Payment Reconciliation | ✅ Mitigated | Reconciliation jobs |
 | API Key Exposure | ✅ Mitigated | SHA-256 hashing |
 | Cost Explosion | ✅ Mitigated | D1 retention policy |
-| Queue Failures | ✅ Mitigated | DLQ, retry logic |
+| Migration Failures | ✅ Mitigated | Cron retry, aggregation errors logged |
 | Calculation Errors | ✅ Mitigated | Validation, audit trail |
 | Missing Aggregates | ✅ Mitigated | Reconciliation job |
 | Admin Security | ✅ Mitigated | Auth, RBAC, rate limiting |
@@ -32,8 +32,8 @@ The platform has completed all 17 production readiness fixes and is ready for pr
 ## Reliability Features
 
 - ✅ Idempotent operations
-- ✅ Dead-letter queue
-- ✅ Retry logic with exponential backoff
+- ✅ D1 as queue; cron migration + aggregation
+- ✅ Retry logic (cron retries; aggregation errors logged)
 - ✅ Comprehensive error handling
 - ✅ Transaction-based operations
 - ✅ Data reconciliation

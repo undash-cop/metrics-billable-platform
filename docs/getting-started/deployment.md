@@ -66,12 +66,9 @@ database_id = "your-d1-database-id"
 npm run db:migrate:d1:remote -- --env production
 ```
 
-### Create Queues
+### Queues (Optional)
 
-```bash
-wrangler queue create usage-events --env production
-wrangler queue create usage-events-dlq --env production
-```
+The platform uses **D1 as a queue**: a cron runs every 5 minutes to migrate events from D1 to RDS and update usage_aggregates. No Cloudflare Queues are required. You can skip creating queues.
 
 ## Step 3: Configure Secrets
 
@@ -213,8 +210,7 @@ Configure alerts for:
 
 - [ ] Database migrations applied
 - [ ] D1 database created and migrated
-- [ ] Queues created
-- [ ] All secrets configured
+- [ ] All secrets configured (no Cloudflare Queues required; D1 acts as queue)
 - [ ] Workers deployed
 - [ ] Razorpay webhook configured
 - [ ] Admin user created

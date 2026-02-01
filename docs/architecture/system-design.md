@@ -21,9 +21,9 @@ Detailed system design for the Metrics Billing Platform.
 ### Reliability
 
 - **Idempotency** - All operations are idempotent
-- **Queue-Based** - Reliable event processing
-- **Retry Logic** - Exponential backoff for failures
-- **Dead-Letter Queue** - Failed message handling
+- **D1 as Queue** - Events in D1; cron polls every 5 min for migration + aggregation
+- **Retry Logic** - Cron retries next run; aggregation errors logged per period
+- **Idempotency** - RDS insert and aggregation support safe retries
 
 ## Component Details
 
@@ -32,7 +32,7 @@ Detailed system design for the Metrics Billing Platform.
 - **High Throughput** - Designed for millions of events/day
 - **Idempotent** - Client-provided event IDs prevent duplicates
 - **Fast Response** - Returns 202 Accepted immediately
-- **Async Processing** - Events processed asynchronously via queue
+- **Async Processing** - Events in D1; cron processes them every 5 min (D1 as queue)
 
 ### Data Storage
 

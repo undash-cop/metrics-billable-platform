@@ -5,8 +5,9 @@
 export interface Env {
   // Cloudflare bindings
   EVENTS_DB: D1Database;
-  USAGE_EVENTS_QUEUE: Queue; // Queue for async event processing
-  USAGE_EVENTS_DLQ?: Queue; // Dead-letter queue for failed messages
+  // Optional: Cloudflare Queues (when not using D1-as-queue polling)
+  USAGE_EVENTS_QUEUE?: Queue;
+  USAGE_EVENTS_DLQ?: Queue;
   
   // Environment variables
   ENVIRONMENT: 'development' | 'staging' | 'production';

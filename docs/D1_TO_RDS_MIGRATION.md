@@ -280,6 +280,6 @@ crons = ["*/5 * * * *"]  # Every 5 minutes
 
 1. **Parallel Processing**: Process multiple batches concurrently
 2. **Incremental Batching**: Adjust batch size based on performance
-3. **Dead Letter Queue**: Store failed events for manual review
+3. **D1 as queue**: Events remain in D1 until cron migrates + aggregates; aggregation errors logged per period
 4. **Metrics Export**: Export Prometheus metrics
 5. **Auto-cleanup**: Automatically delete processed events from D1 after N days

@@ -373,7 +373,7 @@ const apiKey = 'sk_abc123'; // Never do this!
 ```typescript
 async function ingestEventsContinuously(client: BillingPlatformClient) {
   while (true) {
-    const events = await getEventsFromQueue(); // Your event source
+    const events = await getEventsFromYourSource(); // Your event source (e.g. app logs, DB)
     
     for (const event of events) {
       try {
@@ -385,7 +385,7 @@ async function ingestEventsContinuously(client: BillingPlatformClient) {
         });
       } catch (error) {
         console.error('Failed to ingest event:', error);
-        // Log to dead-letter queue or retry later
+        // Retry or log for manual review
       }
     }
     

@@ -49,8 +49,8 @@ The Undash-cop Metrics Billing Platform is **100% complete** and ready for produ
 - ✅ Idempotent operations (no duplicates)
 - ✅ Data reconciliation (D1 vs RDS, payments)
 - ✅ Invoice validation (calculation checks)
-- ✅ Dead-letter queue (failure handling)
-- ✅ Retry logic (exponential backoff)
+- ✅ D1 as queue; cron migration + aggregation (no Cloudflare Queues)
+- ✅ Retry logic (cron retries next run; aggregation errors logged)
 - ✅ Payment retry with exponential backoff
 - ✅ Usage alerts (threshold, spike, cost monitoring)
 - ✅ Audit logging (full audit trail)
@@ -62,8 +62,8 @@ The Undash-cop Metrics Billing Platform is **100% complete** and ready for produ
 ### Infrastructure ✅
 
 - ✅ Cloudflare Workers (APIs and ingestion)
-- ✅ Cloudflare D1 (hot event storage)
-- ✅ Cloudflare Queues (reliable processing)
+- ✅ Cloudflare D1 (hot event storage; D1 as queue)
+- ✅ Cron (every 5 min) migration + aggregation (no Queues product)
 - ✅ Amazon RDS PostgreSQL (financial SOT)
 - ✅ Razorpay (payment processing)
 - ✅ Cron jobs (migration, reconciliation, cleanup)
@@ -110,10 +110,10 @@ The Undash-cop Metrics Billing Platform is **100% complete** and ready for produ
 
 ## P2 - Medium Priority Fixes ✅
 
-7. ✅ **Dead-Letter Queue**
-   - Failed messages go to DLQ
-   - Manual review capability
-   - Retry logic
+7. ✅ **D1 as Queue**
+   - Events in D1; cron polls every 5 min for migration + aggregation
+   - Aggregation errors logged per period; no DLQ required
+   - Idempotent RDS insert and aggregation
 
 8. ✅ **Retry Logic**
    - Exponential backoff
@@ -197,8 +197,8 @@ The Undash-cop Metrics Billing Platform is **100% complete** and ready for produ
 ## Reliability Status
 
 - ✅ Idempotent operations
-- ✅ Dead-letter queue
-- ✅ Retry logic with exponential backoff
+- ✅ D1 as queue; cron migration + aggregation
+- ✅ Retry logic (cron retries; aggregation errors logged)
 - ✅ Comprehensive error handling
 - ✅ Transaction-based operations
 - ✅ Data reconciliation

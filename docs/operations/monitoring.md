@@ -142,7 +142,7 @@ Configure alerts via:
 3. **Performance Dashboard**
    - Response times
    - Database performance
-   - Queue processing
+   - Migration cron (D1 → RDS + aggregation)
 
 ## See Also
 

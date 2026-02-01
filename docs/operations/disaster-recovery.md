@@ -55,15 +55,16 @@ Regular exports of critical data:
    - Test API endpoints
    - Verify cron jobs
 
-### Queue Recovery
+### Migration / D1-as-Queue Recovery
 
-1. **Check Queue Status**
-   - Review queue backlog
-   - Check dead-letter queue
+1. **Check Migration Status**
+   - Review unprocessed events in D1 (events with `processed_at IS NULL`)
+   - Check migration cron logs for errors
+   - Verify RDS usage_events and usage_aggregates
 
-2. **Reprocess Messages**
-   - Process DLQ messages
-   - Verify processing
+2. **Recovery**
+   - Cron runs every 5 min and will retry; fix any RDS/D1 connectivity or schema issues
+   - Aggregation errors are logged per period; fix and re-run if needed
 
 ## Disaster Scenarios
 

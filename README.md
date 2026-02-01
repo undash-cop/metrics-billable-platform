@@ -6,7 +6,7 @@
   <img src="docs/assets/logo.svg" alt="Undash-cop Metrics Billing Platform Logo" width="300" />
 </div>
 
-A production-ready, multi-tenant, usage-based billing platform built by Undash-cop. Designed for India-first payments using Razorpay, with Cloudflare Workers for ingestion and APIs, Cloudflare D1 for hot event storage, Cloudflare Queues for reliability, and Amazon RDS (Postgres) as the financial source of truth.
+A production-ready, multi-tenant, usage-based billing platform built by Undash-cop. Designed for India-first payments using Razorpay, with Cloudflare Workers for ingestion and APIs, Cloudflare D1 for hot event storage (D1 acts as queue; cron polls every 5 min), and Amazon RDS (Postgres) as the financial source of truth.
 
 ---
 
@@ -61,8 +61,8 @@ A production-ready, multi-tenant, usage-based billing platform built by Undash-c
 │         │                  │         │
 │         ▼                  │         │
 │  ┌──────────────┐          │         │
-│  │   Queues     │          │         │
-│  │  (Reliable)  │          │         │
+│  │ Cron (5 min) │          │         │
+│  │ D1→RDS+agg   │          │         │
 │  └──────┬───────┘          │         │
 │         │                  │         │
 └─────────┼──────────────────┼─────────┘
@@ -77,8 +77,8 @@ A production-ready, multi-tenant, usage-based billing platform built by Undash-c
 
 ### Data Flow
 
-1. **Event Ingestion**: Clients → `/events` → D1 → Queue → RDS
-2. **Aggregation**: Queue Consumer → Aggregate Events → RDS
+1. **Event Ingestion**: Clients → `/events` → D1 (return 202). D1 acts as queue.
+2. **Migration + Aggregation**: Cron (every 5 min) polls D1 → copies to RDS usage_events → updates usage_aggregates → removes from D1.
 3. **Invoice Generation**: Cron/API → Calculate → Generate Invoice → RDS
 4. **Payment Processing**: Razorpay → Webhook → Update Payment → RDS
 
@@ -190,7 +190,7 @@ All critical operations are idempotent:
 
 ### Data Flow
 1. **Hot Storage (D1)**: Fast event ingestion
-2. **Queue**: Reliable async processing
+2. **D1 as queue**: Cron polls D1 every 5 min for migration + aggregation (no Cloudflare Queues required)
 3. **Cold Storage (RDS)**: Financial source of truth
 4. **Reconciliation**: Daily checks for data integrity
 
@@ -215,7 +215,7 @@ All critical operations are idempotent:
 ### Alert Thresholds
 - Migration failures: >10 per run
 - Reconciliation discrepancies: >0
-- Queue failures: >10% failure rate
+- Migration cron failures: >10% failure rate
 - API errors: >100/minute
 
 ---
@@ -292,7 +292,7 @@ All production readiness fixes have been implemented:
 
 - ✅ **P0 - Critical**: Duplicate prevention, reconciliation, alerting
 - ✅ **P1 - High Priority**: API key security, cost control
-- ✅ **P2 - Medium Priority**: Queue reliability, validation, audit trail
+- ✅ **P2 - Medium Priority**: Migration reliability, validation, audit trail
 - ✅ **P3 - Low Priority**: Admin security, RBAC, rate limiting
 
 See [Production Readiness Review](docs/PRODUCTION_READINESS_REVIEW.md) for details.

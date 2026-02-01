@@ -36,18 +36,11 @@ MIGRATION_MAX_BATCHES = "10"
     ]
 
 [[d1_databases]]
-binding = "EVENTS_DB"
+binding = "metrics_billable_events"
 database_name = "metrics-billable-events"
-database_id = "your-d1-database-id"
+database_id = "0caffef5-ec85-4b73-acf2-719906b6744e"
 
-[[queues.producers]]
-queue = "usage-events"
-binding = "USAGE_EVENTS_QUEUE"
-
-[[queues.consumers]]
-queue = "usage-events"
-max_batch_size = 100
-max_batch_timeout = 30
+# Queues removed: using D1 as queue (cron polls every 5 min to migrate + aggregate)
 
 # R2 bucket for invoice PDFs
 [[r2_buckets]]
@@ -55,18 +48,9 @@ binding = "INVOICE_PDFS_R2"
 bucket_name = "invoice-pdfs"
 
 [env.production.d1_databases]
-binding = "EVENTS_DB"
-database_name = "metrics-billable-events-prod"
-database_id = "your-d1-database-id-prod"
-
-[[env.production.queues.producers]]
-queue = "usage-events"
-binding = "USAGE_EVENTS_QUEUE"
-
-[[env.production.queues.consumers]]
-queue = "usage-events"
-max_batch_size = 100
-max_batch_timeout = 30
+binding = "metrics_billable_events"
+database_name = "metrics-billable-events"
+database_id = "0caffef5-ec85-4b73-acf2-719906b6744e"
 
 # R2 bucket for invoice PDFs (production)
 [[env.production.r2_buckets]]

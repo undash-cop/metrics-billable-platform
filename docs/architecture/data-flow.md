@@ -22,26 +22,22 @@ D1 Database
   ├─ Insert Event (if not exists)
   │
   ▼
-Cloudflare Queue
-  │
-  ├─ Publish Event
-  │
-  ▼
 Return 202 Accepted
+
+(D1 acts as queue; events stay in D1 until processed by cron)
+
+Cron (every 5 minutes)
   │
-  ▼
-Queue Consumer
-  │
-  ├─ Process Event Batch
-  ├─ Aggregate Usage
+  ├─ Fetch unprocessed events from D1
+  ├─ Insert into RDS usage_events (with idempotency)
+  ├─ For each distinct (org, project, metric, month, year): aggregate from D1 → RDS usage_aggregates
+  ├─ Remove aggregated events from D1
   │
   ▼
 RDS Database
   │
-  ├─ Update Usage Aggregates
-  │
-  ▼
-Mark D1 Event as Processed
+  ├─ usage_events (raw)
+  ├─ usage_aggregates (monthly rollups)
 ```
 
 ## Invoice Generation Flow
@@ -106,18 +102,19 @@ Worker
 Return 200 OK
 ```
 
-## Data Migration Flow
+## Data Migration Flow (D1 as Queue)
 
 ```
 Cron Job (Every 5 Minutes)
   │
-  ├─ Fetch Unprocessed Events from D1
+  ├─ Fetch unprocessed events from D1 (D1 = queue)
   │
   ▼
 For Each Batch:
   │
-  ├─ Insert into RDS (with idempotency)
-  ├─ Mark D1 Event as Processed
+  ├─ Insert into RDS usage_events (with idempotency)
+  ├─ For each distinct period: aggregate from D1 → RDS usage_aggregates
+  ├─ Remove aggregated events from D1
   │
   ▼
 Log Results

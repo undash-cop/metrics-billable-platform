@@ -111,7 +111,7 @@ features:
 - Idempotent operations (no duplicates)
 - Data reconciliation (D1 vs RDS, payments)
 - Invoice validation (calculation checks)
-- Dead-letter queue (failure handling)
+- D1 as queue; cron migration + aggregation (no Cloudflare Queues)
 - Retry logic (exponential backoff)
 - Payment retry with exponential backoff
 - Usage alerts (threshold, spike, cost monitoring)

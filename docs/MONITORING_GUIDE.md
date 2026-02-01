@@ -34,7 +34,7 @@ This guide explains what metrics should be monitored in the billing platform and
 - API key validation service health
 - Network connectivity to D1
 - Event validation failures
-- Queue publishing failures
+- D1 write failures (event ingestion)
 
 ---
 
@@ -169,36 +169,34 @@ This guide explains what metrics should be monitored in the billing platform and
 
 ---
 
-### 6. Queue Processing
+### 6. Migration / Aggregation (D1 as Queue)
 
-**What**: Queue message processing rate and failures
+**What**: Migration cron (every 5 min) processing rate and failures
 
 **Metrics**:
-- `queue.message_sent` (send rate: messages/second)
-- `queue.message_processed` (processing rate: messages/second)
-- `queue.message_failed` (failure rate: failures/second)
-- `queue.*.duration` (processing latency: P50, P95, P99)
+- `migration.totalFetched`, `migration.successfullyInserted`, `migration.failed`
+- `migration.periodsAggregated`, `migration.aggregationErrors`
+- `migration` operation duration
 
 **Why Monitor**:
-1. **Data Flow**: Queue failures block data processing. Events not aggregated = invoices not generated.
-2. **Backlog**: Unprocessed messages indicate processing issues or capacity problems.
-3. **Reliability**: Queue is critical for async processing. Failures affect billing timeliness.
-4. **Latency**: Processing delays affect how quickly invoices can be generated.
+1. **Data Flow**: Migration/aggregation failures block data processing. Events not aggregated = invoices not generated.
+2. **Backlog**: Unprocessed events in D1 indicate cron issues or capacity problems.
+3. **Reliability**: Cron is critical for D1 → RDS flow. Failures affect billing timeliness.
+4. **Latency**: Processing runs every 5 min; backlog indicates delays.
 
 **Alert Thresholds**:
-- **Warning**: >10 failures/minute OR processing lag >5 minutes
-  - **Why**: Some messages not processing or processing delays
-  - **Action**: Check queue consumer health, review processing logic, check database
-- **Critical**: >50 failures/minute OR processing lag >30 minutes
-  - **Why**: Significant queue issues, data processing blocked
-  - **Action**: Immediate investigation, check queue consumer, database connectivity
+- **Warning**: >10 migration failures per run OR aggregation errors >10% of periods
+  - **Why**: Some events not processing or aggregation delays
+  - **Action**: Check migration cron logs, RDS connectivity, D1 health
+- **Critical**: Migration cron failing repeatedly OR aggregation errors >50%
+  - **Why**: Significant migration issues, data processing blocked
+  - **Action**: Immediate investigation, check RDS, D1, cron schedule
 
 **What to Check**:
-- Queue consumer health
-- Message processing errors
-- Database connectivity from queue consumer
-- Processing latency
-- Message backlog size
+- Migration cron execution (every 5 min)
+- RDS connectivity from Worker
+- Unprocessed events in D1 (processed_at IS NULL)
+- Aggregation error logs per period
 
 ---
 
@@ -337,7 +335,7 @@ Display:
 - Payment processing success rate
 - API latency (P50, P95, P99)
 - Database operation success rate
-- Queue processing rate
+- Migration cron rate (D1 → RDS + aggregation)
 
 ### Financial Dashboard
 
