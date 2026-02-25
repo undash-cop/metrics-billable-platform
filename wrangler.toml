@@ -36,9 +36,9 @@ MIGRATION_MAX_BATCHES = "10"
     ]
 
 [[d1_databases]]
-binding = "metrics_billable_events"
+binding = "EVENTS_DB"
 database_name = "metrics-billable-events"
-database_id = "0caffef5-ec85-4b73-acf2-719906b6744e"
+database_id = "30e6f082-5c0a-4e55-affc-10df906db4f7"
 
 # Queues removed: using D1 as queue (cron polls every 5 min to migrate + aggregate)
 
